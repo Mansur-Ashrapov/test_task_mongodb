@@ -3,19 +3,17 @@ import json
 import math
 
 def _month_range(from_dt, to_dt):
+    to_dt = datetime.datetime(to_dt.year, to_dt.month, to_dt.day, to_dt.hour, to_dt.minute, second=59)
     current = datetime.datetime(from_dt.year, from_dt.month, from_dt.day)
     next_date = datetime.datetime(from_dt.year, ((from_dt.month % 12) + 1), 1, hour=23, minute=59, second=59) - datetime.timedelta(days=1)
 
     diff = math.ceil(((to_dt - from_dt).days)/30)
 
-    for _ in range(diff + 1):
+    for _ in range(diff):
         if next_date > to_dt:
-            yield current, to_dt
             break
+        
         yield current, next_date    
-        if next_date == to_dt:
-            yield next_date, to_dt
-            break
 
         current = datetime.datetime(next_date.year, next_date.month, next_date.day) + datetime.timedelta(days=1)
         if current.month < 12:
@@ -30,19 +28,14 @@ def _day_range(from_dt:datetime.datetime, to_dt:datetime.datetime):
     diff = to_dt - from_dt
     ds = int(diff.days)
 
-    for _ in range(ds+1):
-        if next_date > to_dt:
-            yield current, to_dt
-            break
+    while next_date < to_dt:
 
-        yield current, next_date    
-
-        if next_date == to_dt:
-            yield next_date, to_dt
-            break
+        yield current, next_date
 
         current = datetime.datetime(next_date.year, next_date.month, next_date.day) + datetime.timedelta(days=1)
         next_date = datetime.datetime(next_date.year, next_date.month, next_date.day) + datetime.timedelta(days=2) - datetime.timedelta(seconds=1)
+    
+    yield current, to_dt
 
 def _hour_range(from_dt:datetime.datetime, to_dt:datetime.datetime):
     current = datetime.datetime(from_dt.year, from_dt.month, from_dt.day, from_dt.hour, from_dt.minute, from_dt.second) 
